@@ -4,7 +4,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class Cell : MonoBehaviour//, IPointerClickHandler
+public class Cell : MonoBehaviour, IPointerClickHandler
 {
     public int x { get; private set; }
     public int y { get; private set; }
@@ -22,6 +22,19 @@ public class Cell : MonoBehaviour//, IPointerClickHandler
         this.x = x;
         this.y = y;
         this.manager = board;
+    }
+
+    public void OnPointerClick(PointerEventData eventData)
+    {
+        if (State == CellState.Showing || State == CellState.Flag) return;
+        if (eventData.button == PointerEventData.InputButton.Left)
+        {
+            manager.revealCell(x, y);
+        }
+        if (eventData.button == PointerEventData.InputButton.Right)
+        {
+            manager.toggleFlag(x, y);
+        }
     }
     
 }

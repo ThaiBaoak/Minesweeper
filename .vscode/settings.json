@@ -56,5 +56,5 @@
         "temp/": true,
         "Temp/": true
     },
-    "dotnet.defaultSolution": "minesweeper.sln"
+    "dotnet.defaultSolution": "Minesweeper.sln"
 }
