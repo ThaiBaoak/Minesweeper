@@ -7,6 +7,8 @@ public class Board : MonoBehaviour
 {
     //[SerializeField] private GameManager GameManager;
     //[SerializeField] private Button button;
+
+    public static Board Instance;
     
     [SerializeField] private Cell cellPrefab;
     [SerializeField] private int hard;
@@ -27,7 +29,6 @@ public class Board : MonoBehaviour
     [SerializeField] private Sprite normalSprite;
     [SerializeField] private Sprite[] numberSprites;
 
-    [SerializeField] private GameManager Game;
 
     private void Awake()
     {
@@ -165,10 +166,10 @@ public class Board : MonoBehaviour
             c.GetComponent<UnityEngine.UI.Image>().sprite = emptySprite;
         }
         //
-
-        if (c.IsMine) { gameOver();return; }
+        if (GameManager.Instance.Gamestate != GameState.Playing) return;
+        if (c.IsMine) { GameManager.Instance.Gamestate = GameState.Lose; GameManager.Instance.GameEnd();return;}
         c.State = CellState.Showing;
-        if (c.Number == 0 && Game.Gamestate == GameState.Playing)
+        if (c.Number == 0)
         {
             foreach (var dir in direction)
             {
@@ -196,20 +197,19 @@ public class Board : MonoBehaviour
                 }
             }
         }
-        Game.Gamestate = GameState.Win;
-        Debug.Log("Win");
+        GameManager.Instance.Gamestate = GameState.Win;
+        GameManager.Instance.GameEnd();
     }
 
-    private void gameOver()
+
+    public void revealAll()
     {
-        Debug.Log("Game Over");
-        Game.Gamestate = GameState.Lose;
         for (int col = 0; col < dimensions.x; col++)
         {
             for (int row = 0; row < dimensions.y; row++)
             {
                 Cell c = boardCell[col, row];
-                if (c.State != CellState.Showing )
+                if (c.State != CellState.Showing)
                 {
                     revealCell(col, row);
                 }
@@ -232,6 +232,7 @@ public class Board : MonoBehaviour
         {
             c.State = CellState.Hidden;
             c.GetComponent<UnityEngine.UI.Image>().sprite = normalSprite;
+            Debug.Log($"Cell {x},{y} toggled back to Hidden");
         }
     }
 }

@@ -26,8 +26,8 @@ public class Cell : MonoBehaviour, IPointerClickHandler
 
     public void OnPointerClick(PointerEventData eventData)
     {
-        if (State == CellState.Showing || State == CellState.Flag) return;
-        if (eventData.button == PointerEventData.InputButton.Left)
+        if (State == CellState.Showing) return;
+        if (eventData.button == PointerEventData.InputButton.Left && State != CellState.Flag)
         {
             manager.revealCell(x, y);
         }

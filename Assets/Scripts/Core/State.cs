@@ -1,7 +1,8 @@
 public enum GameState{
     Win,
     Lose,
-    Playing
+    Playing,
+    Waiting
 }
  public enum CellState{
     Hidden,
