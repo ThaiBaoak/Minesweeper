@@ -8,15 +8,14 @@ public class Board : MonoBehaviour
     //[SerializeField] private GameManager GameManager;
     //[SerializeField] private Button button;
 
-    public static Board Instance;
     
     [SerializeField] private Cell cellPrefab;
     [SerializeField] private int hard;
     private int mine;
-    private Vector2Int dimensions = Vector2Int.zero;
+    public Vector2Int dimensions = Vector2Int.zero;
     private float cellWidth;
     private float cellHeight;
-    private Cell[,] boardCell;
+    public Cell[,] boardCell;
     public RectTransform holder;
     private static readonly Vector2Int[] direction = new Vector2Int[]{
         new(-1, 0), new(1, 0), new(0, -1), new(0, 1),
