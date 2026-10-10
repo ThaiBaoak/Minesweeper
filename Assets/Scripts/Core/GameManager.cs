@@ -13,7 +13,7 @@ public class GameManager : MonoBehaviour
     public int Width => board.dimensions.x;
     public int Height => board.dimensions.y;
     // Start is called before the first frame update
-    void Start()
+    void Awake()
     {
         Instance = this;
         Gamestate = GameState.Waiting;
@@ -72,7 +72,7 @@ public class GameManager : MonoBehaviour
         return CellStates;
     }
 
-    public void RevalCell(int x, int y)
+    public void RevealCell(int x, int y)
     {
         board.revealCell(x, y);
     }

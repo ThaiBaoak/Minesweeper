@@ -8,7 +8,7 @@ namespace AI
     {
         
         //Deplay Time
-        [SerializeField] private float delayTime = 1f;
+        //[SerializeField] private float delayTime = 1f;
 
         private AISolve solver = new AISolve();
         private Coroutine solveCoroutine;
@@ -27,13 +27,32 @@ namespace AI
 
             if(actionData.action == AIAction.Reveal)
             {
-                GameManager.Instance.RevalCell(actionData.x, actionData.y);
+                GameManager.Instance.RevealCell(actionData.x, actionData.y);
             }
             else if(actionData.action == AIAction.Flag)
             {
                 GameManager.Instance.ToggleFlag(actionData.x, actionData.y);
             }
             return true;
+        }
+
+        public void MakeSingleStep()
+        {
+            if(IsGameOver)
+            {
+                return;
+            }
+            BoardInfo boardInfo = GetBoardInfo();
+            AIActionData nextAction = solver.NextMove(boardInfo);
+
+            if(nextAction.x >= 0 && nextAction.y >= 0)
+            {
+                ExecuteAction(nextAction);
+            }
+            else
+            {
+                Debug.LogWarning("[AI] Không tìm thấy nước đi hợp lệ tiếp theo.");
+            }
         }
     }
 }
