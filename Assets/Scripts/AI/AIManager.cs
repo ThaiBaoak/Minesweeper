@@ -8,7 +8,6 @@ namespace AI
     {
         
         //Deplay Time
-        [SerializeField] private float delayTime = 1f;
         [SerializeField] private History moveHistoryUI;
 
         private AISolve solver = new AISolve();
@@ -16,7 +15,7 @@ namespace AI
         public bool IsGameOver => GameManager.Instance.Gamestate == GameState.Win || GameManager.Instance.Gamestate == GameState.Lose;
         public BoardInfo GetBoardInfo()
         {
-            return new BoardInfo(GameManager.Instance.Width, GameManager.Instance.Height, GameManager.Instance.getCellStates());
+            return new BoardInfo(GameManager.Instance.Width, GameManager.Instance.Height, GameManager.Instance.MineCount, GameManager.Instance.getCellStates());
         }
 
         public bool ExecuteAction(AIActionData actionData)
@@ -111,7 +110,7 @@ namespace AI
                 ExecuteAction(nextAction);
 
                 // Chờ khoảng thời gian delayTime 
-                yield return new WaitForSeconds(delayTime);
+                yield return new WaitForSeconds(GameManager.Instance.DelayTime);
             }
 
             solveCoroutine = null;

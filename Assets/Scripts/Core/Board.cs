@@ -10,7 +10,6 @@ public class Board : MonoBehaviour
 
     
     [SerializeField] private Cell cellPrefab;
-    [SerializeField] private int hard;
     private int mine;
     public Vector2Int dimensions = Vector2Int.zero;
     private float cellWidth;
@@ -32,39 +31,49 @@ public class Board : MonoBehaviour
     private void Awake()
     {
         holder = GetComponent<RectTransform>();
-        setup(holder, hard);
+    }
+
+    private void Start()
+    {
+        setup(holder);
         boardCell = new Cell[dimensions.x, dimensions.y];
         creatCells();
         placeMine();
         calculate();
         PrintBoard();
     }
-    private void setup(RectTransform rt, int hard)
+    private void setup(RectTransform rt)
     {
-        if (rt.rect.width > rt.rect.height)
+        if(GameManager.Instance != null)
         {
-            dimensions.y = hard * 2;
-            dimensions.x = Mathf.FloorToInt(dimensions.y * (rt.rect.width / rt.rect.height));
+            dimensions.x = GameManager.Instance.Width;
+            dimensions.y = GameManager.Instance.Height;
+            mine = GameManager.Instance.MineCount;
         }
         else
         {
-            dimensions.x = hard * 2;
-            dimensions.y = Mathf.FloorToInt(dimensions.x * (rt.rect.height / rt.rect.width));
+            dimensions.x = 9;
+            dimensions.y = 9;
+            mine = 10;
         }
 
-        //Tính số Mine
-        int total = dimensions.x * dimensions.y;
-        float ratio = 0.05f + 0.1f * Mathf.Sqrt(hard / (float)10);
-        mine = (int)(total * ratio);
-        //Tính kích thước cell
-        cellWidth = rt.rect.width / dimensions.x;
-        cellHeight = rt.rect.height / dimensions.y;
-        Debug.Log(total);
-        Debug.Log(mine);
+        if(rt != null && dimensions.x > 0 && dimensions.y > 0)
+        {
+            cellWidth = rt.rect.width / dimensions.x;
+            cellHeight = rt.rect.height / dimensions.y;
+        }
+        else
+        {
+            Debug.LogError("RectTransform is null or invalid dimensions");
+        }
     }
 
     private void creatCells()
     {
+        for (int i = transform.childCount - 1; i >= 0; i--)
+    {
+        DestroyImmediate(transform.GetChild(i).gameObject);
+    }
         for (int col = 0; col < dimensions.x; col++)
         {
             for (int row = 0; row < dimensions.y; row++)

@@ -7,7 +7,7 @@ using TMPro;
 public class Clock : MonoBehaviour
 {
     [SerializeField] public TextMeshProUGUI clockText;
-    private int time;
+    public static int time;
     private float accumulator = 0f;
     void Start()
     {

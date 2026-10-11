@@ -25,12 +25,13 @@ namespace AI
 
     public class BoardInfo
     {
-        public int width, height;
+        public int width, height, mineCount;
         public int[,] CellStates; // 0: empty, 1-8: number, -1: Chưa mở, -2: flagged
-        public BoardInfo(int width, int height, int[,] cellStates)
+        public BoardInfo(int width, int height, int mineCount, int[,] cellStates)
         {
             this.width = width;
             this.height = height;
+            this.mineCount = mineCount;
             this.CellStates = cellStates;
         }
     }

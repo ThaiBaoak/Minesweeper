@@ -11,13 +11,71 @@ public class GameManager : MonoBehaviour
     public GameState Gamestate;
     public int[,] CellStates;
     [SerializeField] private Board board ;
-    public int Width => board.dimensions.x;
-    public int Height => board.dimensions.y;
+    [SerializeField] private int width = 9;
+    [SerializeField] private int height = 9;
+    [SerializeField] private int mineCount = 10;
+    [SerializeField] private int benchmarkTotalRuns = 100;
+    [SerializeField] private float delayTime = 1f;
+    public int Width => width;
+    public int Height => height;
+    public int MineCount => mineCount;
+    public int BenchmarkTotalRuns => benchmarkTotalRuns;
+
+    public float DelayTime => delayTime;
+
+    private const string PREF_DIFFICULTY = "SelectedDifficulty";
+    private const string PREF_BENCHMARK_RUNS = "BenchmarkTotalRuns";
+    private const string PREF_AI_DELAY = "AIAutoPlayDelay";
     // Start is called before the first frame update
     void Awake()
     {
-        Instance = this;
-        Gamestate = GameState.Waiting;
+        if (Instance == null) Instance = this;
+        else {Destroy(gameObject);return;}
+
+        int savedDifficulty = PlayerPrefs.GetInt(PREF_DIFFICULTY, 1);
+        Debug.Log($"[GameManager] Load Scene thành công! Độ khó đã nạp: {savedDifficulty} ({width}x{height} - {mineCount} mìn)");
+        ApplyDifficultyConfig(savedDifficulty);
+        benchmarkTotalRuns = PlayerPrefs.GetInt(PREF_BENCHMARK_RUNS, 100);
+        delayTime = PlayerPrefs.GetFloat(PREF_AI_DELAY, 0.2f);
+        
+    }
+
+    public void SetDifficulty(int difficultyIndex)
+    {
+        Debug.Log($"<color=red>[2. SetDifficulty Dược Gọi] Giá trị mới gán vào: {difficultyIndex}</color>");
+        PlayerPrefs.SetInt(PREF_DIFFICULTY, difficultyIndex);
+        PlayerPrefs.Save();
+
+    }
+    private void ApplyDifficultyConfig(int index)
+    {
+        switch (index)
+        {
+            case 0: // Easy
+                width = 5; height = 5; mineCount = 3;
+                break;
+            case 1: // Medium
+                width = 9; height = 9; mineCount = 10;
+                break;
+            case 2: // Hard
+                width = 16; height = 16; mineCount = 40;
+                break;
+        }
+    }
+
+    public void SetDelayTime(float delay)
+    {
+        delayTime = Mathf.Max(0.01f, delay);
+        PlayerPrefs.SetFloat(PREF_AI_DELAY, delayTime);
+        PlayerPrefs.Save();
+    }
+
+    public void SetBenchmarkTotalRuns(int runs)
+    {
+        benchmarkTotalRuns = Mathf.Max(1, runs); // Đảm bảo tối thiểu là 1 ván
+        PlayerPrefs.SetInt(PREF_BENCHMARK_RUNS, benchmarkTotalRuns);
+        PlayerPrefs.Save();
+        Debug.Log($"[GameManager] Đã lưu Benchmark Runs mới: {benchmarkTotalRuns}");
     }
 
     public void StartGame()
@@ -31,11 +89,19 @@ public class GameManager : MonoBehaviour
         if (Gamestate == GameState.Win)
         {
             Debug.Log("You Win");
+            if(GameEndModal.Instance != null)
+            {
+                GameEndModal.Instance.ShowGameEnd(true, Clock.time);
+            }
             OnGameEnd?.Invoke(true);
         }
         else if (Gamestate == GameState.Lose)
         {
             Debug.Log("You Lose");
+            if(GameEndModal.Instance != null)
+            {
+                GameEndModal.Instance.ShowGameEnd(false, Clock.time);
+            }
             OnGameEnd?.Invoke(false);
         }
         
@@ -48,7 +114,8 @@ public class GameManager : MonoBehaviour
     public void RestartGame()
     {
         Scene scene = SceneManager.GetActiveScene();
-        SceneManager.LoadScene(scene.name);
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        Debug.Log($"[Restart] Dang restart voi Width = {width}, Height = {height}");
     }
 
     public int[,] getCellStates()
