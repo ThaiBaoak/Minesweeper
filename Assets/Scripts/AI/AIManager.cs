@@ -8,7 +8,8 @@ namespace AI
     {
         
         //Deplay Time
-        //[SerializeField] private float delayTime = 1f;
+        [SerializeField] private float delayTime = 1f;
+        [SerializeField] private History moveHistoryUI;
 
         private AISolve solver = new AISolve();
         private Coroutine solveCoroutine;
@@ -33,6 +34,13 @@ namespace AI
             {
                 GameManager.Instance.ToggleFlag(actionData.x, actionData.y);
             }
+            
+
+            if(moveHistoryUI != null)
+            {
+                Debug.Log($"[AI] Thêm bước vào lịch sử: {actionData.action} tại ({actionData.x}, {actionData.y})");
+                moveHistoryUI.AddHistoryItem(actionData);
+            }
             return true;
         }
 
@@ -53,6 +61,66 @@ namespace AI
             {
                 Debug.LogWarning("[AI] Không tìm thấy nước đi hợp lệ tiếp theo.");
             }
+        }
+
+        public void ToggleAutoSolve()
+        {
+            if (solveCoroutine != null)
+            {
+                StopAutoSolve();
+            }
+            else
+            {
+                StartAutoSolve();
+            }
+        }
+
+        public void StartAutoSolve()
+        {
+            if (solveCoroutine == null && !IsGameOver)
+            {
+                solveCoroutine = StartCoroutine(AutoSolveRoutine());
+            }
+        }
+
+        public void StopAutoSolve()
+        {
+            if (solveCoroutine != null)
+            {
+                StopCoroutine(solveCoroutine);
+                solveCoroutine = null;
+            }
+        }
+
+        private IEnumerator AutoSolveRoutine()
+        {
+            while (!IsGameOver)
+            {
+                BoardInfo currentBoard = GetBoardInfo();
+                if (currentBoard == null) break;
+
+                AIActionData nextAction = solver.NextMove(currentBoard);
+
+                // Nếu AI bế tắc  dừng chế độ Auto
+                if (nextAction.x < 0 || nextAction.y < 0)
+                {
+                    Debug.LogWarning("[AIManager] AI dừng chạy tự động do bế tắc logic.");
+                    break;
+                }
+
+                ExecuteAction(nextAction);
+
+                // Chờ khoảng thời gian delayTime 
+                yield return new WaitForSeconds(delayTime);
+            }
+
+            solveCoroutine = null;
+        }
+
+
+        private void OnDisable()
+        {
+            StopAutoSolve(); // Đảm bảo dừng Coroutine khi GameObject bị tắt
         }
     }
 }
